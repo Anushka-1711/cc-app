@@ -1,32 +1,68 @@
-# # Anonymous Confessions - College Edition
+# College Confessions App 🎓
 
-A Flutter-based anonymous social platform for college students to share confessions, thoughts, and connect with their community safely and privately.
-
-## 🚀 Features
-
-# College Confessions
-
-An exact clone of the cc-web GitHub repository, bu# College Confessions App 🎓
-
-A modern, anonymous confession platform for college students built with Flutter, featuring Instagram-style UI and Reddit-inspired community features.
+A modern, anonymous confession platform for college students built with Flutter and Supabase, featuring Instagram-style UI and Reddit-inspired community features.
 
 ## 🚀 Features
 
-- **Anonymous & Public Confessions**: Share your thoughts anonymously or publicly
-- **Community Categories**: 10+ specialized confession categories
-- **Modern UI**: Instagram-inspired design with Material Design 3
+### 🔐 Security & Privacy
+- **Anonymous Identity Protection**: Separate anonymous IDs per institution
+- **Institution Verification**: Email-based verification system
+- **Row Level Security**: Comprehensive database access control
+- **Trust Score System**: Behavioral reputation management
+
+### � Social Features
+- **Anonymous & Public Confessions**: Share thoughts safely and privately
+- **Community System**: Institution-based communities
+- **Real-time Updates**: Live confession feeds and notifications
+- **Voting System**: Upvote/downvote with trust score requirements
+- **Nested Comments**: Full conversation threading
+
+### 🎨 Modern UI/UX
+- **Instagram-inspired Design**: Modern, familiar interface
+- **Material Design 3**: Latest design system implementation
 - **Cross-Platform**: Optimized for both iOS and Android
 - **Responsive**: Adaptive icons and platform-specific UI elements
-- **Design System**: Comprehensive design tokens and reusable components
 
-## 📱 Screenshots
+## 🏗️ Backend Architecture
 
-*Screenshots will be added here*
+### Database (Supabase/PostgreSQL)
+- **10 Core Tables**: Users, confessions, communities, comments, votes, notifications
+- **Row Level Security**: Granular access control policies
+- **Business Logic**: Automated triggers for vote counting and notifications
+- **Real-time Subscriptions**: Live updates for feeds and notifications
 
-## 🛠 Architecture
+### Services Layer
+- **AuthService**: Anonymous authentication & institution verification
+- **ConfessionService**: Post management, voting, and commenting
+- **CommunityService**: Community discovery and membership
+- **NotificationService**: Real-time alerts and push notifications
 
-### Project Structure
+## 📋 Quick Setup
 
+### Prerequisites
+- Flutter 3.10+ 
+- Dart 3.0+
+- Supabase account
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/Anushka-1711/cc-app.git
+cd cc-app
+```
+
+### 2. Install Dependencies
+```bash
+flutter pub get
+```
+
+### 3. Backend Setup
+1. Follow the complete setup guide: [BACKEND_SETUP.md](BACKEND_SETUP.md)
+2. Create Supabase project and run database migrations
+3. Configure environment variables in `.env`
+
+### 4. Run Application
+```bash
+flutter run
 ```
 lib/
 ├── core/                          # Core utilities and configurations
