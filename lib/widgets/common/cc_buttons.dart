@@ -39,7 +39,7 @@ class CCPrimaryButton extends StatelessWidget {
           disabledForegroundColor: CCDesignSystem.textWhite,
           elevation: 0,
           textStyle: _getTextStyle(),
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: CCDesignSystem.borderRadiusLarge,
           ),
         ),
@@ -134,12 +134,12 @@ class CCSecondaryButton extends StatelessWidget {
             color: isEnabled ? CCDesignSystem.primaryBlue : CCDesignSystem.textSecondary,
             width: 1,
           ),
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: CCDesignSystem.borderRadiusLarge,
           ),
         ),
         child: isLoading
-            ? SizedBox(
+            ? const SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
@@ -222,7 +222,7 @@ class CCTextButton extends StatelessWidget {
         foregroundColor: color ?? CCDesignSystem.primaryBlue,
         disabledForegroundColor: CCDesignSystem.textSecondary,
         textStyle: _getTextStyle(),
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
         ),
       ),

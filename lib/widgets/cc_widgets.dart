@@ -2,6 +2,7 @@
 /// 
 /// This library provides all reusable UI components for the College Confessions app.
 /// Import this file to get access to all design system components.
+library;
 
 // Design System
 export '../core/design/design_system.dart';

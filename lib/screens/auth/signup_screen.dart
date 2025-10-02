@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'login_screen.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../../services/services.dart';
 
 /// Exact replica of the cc-web GitHub repository signup screen
 class SignupScreen extends StatefulWidget {
@@ -31,15 +32,26 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _handleSignup() async {
+    if (!_validateForm()) return;
+
     setState(() => _isLoading = true);
 
-    // Simulate signup delay
-    await Future.delayed(const Duration(milliseconds: 1000));
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+    try {
+      await ServiceProvider.auth.signUpWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        displayName: _usernameController.text.trim(),
       );
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Signup failed: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -47,12 +59,64 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _isLoading = true);
     HapticFeedback.lightImpact();
 
-    // Simulate social signup
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      // For now, treat social signup as anonymous signup
+      await ServiceProvider.auth.signInAnonymously();
 
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Social signup failed: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  bool _validateForm() {
+    if (_emailController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter an email address');
+      return false;
+    }
+
+    if (!_emailController.text.contains('@')) {
+      _showErrorSnackBar('Please enter a valid email address');
+      return false;
+    }
+
+    if (_usernameController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter a username');
+      return false;
+    }
+
+    if (_passwordController.text.length < 6) {
+      _showErrorSnackBar('Password must be at least 6 characters');
+      return false;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showErrorSnackBar('Passwords do not match');
+      return false;
+    }
+
+    if (!_agreeToTerms) {
+      _showErrorSnackBar('Please agree to the terms and conditions');
+      return false;
+    }
+
+    return true;
+  }
+
+  void _showErrorSnackBar(String message) {
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -205,16 +269,16 @@ class _SignupScreenState extends State<SignupScreen> {
         // Facebook Signup - exact from repo
         _buildSocialButton(
           onPressed: () => _handleSocialSignup('facebook'),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.facebook,
                 color: Color(0xFF1877F2),
                 size: 20,
               ),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: 12),
+              Text(
                 'Continue with Facebook',
                 style: TextStyle(
                   fontSize: 16,
@@ -230,16 +294,16 @@ class _SignupScreenState extends State<SignupScreen> {
         // Apple Signup - exact from repo
         _buildSocialButton(
           onPressed: () => _handleSocialSignup('apple'),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.apple,
                 color: Color(0xFF262626),
                 size: 20,
               ),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: 12),
+              Text(
                 'Continue with Apple',
                 style: TextStyle(
                   fontSize: 16,

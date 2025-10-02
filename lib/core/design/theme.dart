@@ -49,14 +49,14 @@ class CCTheme {
       ),
       
       // Card Theme
-      cardTheme: CardThemeData(
+      cardTheme: const CardThemeData(
         color: CCDesignSystem.backgroundWhite,
         surfaceTintColor: CCDesignSystem.backgroundWhite,
         elevation: 0,
-        margin: const EdgeInsets.all(CCDesignSystem.space8),
+        margin: EdgeInsets.all(CCDesignSystem.space8),
         shape: RoundedRectangleBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
-          side: const BorderSide(
+          side: BorderSide(
             color: CCDesignSystem.divider,
             width: 1,
           ),
@@ -74,7 +74,7 @@ class CCTheme {
             double.infinity, 
             CCDesignSystem.buttonHeightMedium,
           ),
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: CCDesignSystem.borderRadiusLarge,
           ),
         ),
@@ -92,7 +92,7 @@ class CCTheme {
             color: CCDesignSystem.primaryBlue,
             width: 1,
           ),
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: CCDesignSystem.borderRadiusLarge,
           ),
         ),
@@ -102,7 +102,7 @@ class CCTheme {
         style: TextButton.styleFrom(
           foregroundColor: CCDesignSystem.primaryBlue,
           textStyle: CCDesignSystem.buttonMedium,
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: CCDesignSystem.borderRadiusLarge,
           ),
         ),
@@ -112,37 +112,37 @@ class CCTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: CCDesignSystem.backgroundCard,
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: CCDesignSystem.divider,
             width: 1,
           ),
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: CCDesignSystem.divider,
             width: 1,
           ),
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: CCDesignSystem.primaryBlue,
             width: 2,
           ),
         ),
-        errorBorder: OutlineInputBorder(
+        errorBorder: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: CCDesignSystem.error,
             width: 1,
           ),
         ),
-        focusedErrorBorder: OutlineInputBorder(
+        focusedErrorBorder: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: CCDesignSystem.error,
             width: 2,
           ),
@@ -228,11 +228,11 @@ class CCTheme {
       
       scaffoldBackgroundColor: CCDesignSystem.backgroundDark,
       
-      cardTheme: CardThemeData(
+      cardTheme: const CardThemeData(
         color: CCDesignSystem.backgroundDark,
         surfaceTintColor: CCDesignSystem.backgroundDark,
         elevation: 0,
-        margin: const EdgeInsets.all(CCDesignSystem.space8),
+        margin: EdgeInsets.all(CCDesignSystem.space8),
         shape: RoundedRectangleBorder(
           borderRadius: CCDesignSystem.borderRadiusLarge,
         ),

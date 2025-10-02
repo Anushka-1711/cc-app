@@ -121,17 +121,17 @@ class CCSearchField extends StatelessWidget {
             : null,
         filled: true,
         fillColor: CCDesignSystem.backgroundCard,
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusXLarge,
           borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusXLarge,
           borderSide: BorderSide.none,
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: CCDesignSystem.borderRadiusXLarge,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: CCDesignSystem.primaryBlue,
             width: 2,
           ),
@@ -284,7 +284,7 @@ class CCDropdown<T> extends StatelessWidget {
           const SizedBox(height: CCDesignSystem.space8),
         ],
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           items: items,
           onChanged: enabled ? onChanged : null,
           validator: validator,
@@ -323,7 +323,7 @@ class CCToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: CCDesignSystem.backgroundCard,
         borderRadius: CCDesignSystem.borderRadiusLarge,
       ),

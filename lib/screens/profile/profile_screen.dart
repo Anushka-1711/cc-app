@@ -110,10 +110,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const SizedBox(height: 16),
 
                 // Name and Bio
-                Column(
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Alex Johnson',
@@ -124,8 +124,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       'Computer Science Student 💻\nLoves sharing thoughts anonymously\n🎓 University of California',
                       style: TextStyle(
                         fontSize: 14,
@@ -442,7 +442,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             border: Border.all(color: const Color(0xFFE1E1E1), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -702,7 +702,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             border: Border.all(color: const Color(0xFFE1E1E1), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),

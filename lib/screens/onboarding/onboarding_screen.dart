@@ -312,7 +312,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: const Color(0xFF0095F6).withOpacity(0.1),
+              color: const Color(0xFF0095F6).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -421,7 +421,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.white,
+          color: isSelected ? color.withValues(alpha: 0.1) : Colors.white,
           border: Border.all(
             color: isSelected ? color : const Color(0xFFE0E0E0),
             width: 2,
@@ -434,7 +434,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
@@ -542,7 +542,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           tileColor: isSelected
-                              ? const Color(0xFF0095F6).withOpacity(0.1)
+                              ? const Color(0xFF0095F6).withValues(alpha: 0.1)
                               : Colors.white,
                           leading: Icon(
                             Icons.school,
@@ -667,7 +667,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     tileColor: isSelected
-                        ? const Color(0xFF0095F6).withOpacity(0.1)
+                        ? const Color(0xFF0095F6).withValues(alpha: 0.1)
                         : Colors.white,
                     leading: Icon(
                       Icons.location_on,
@@ -707,7 +707,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: const Color(0xFF00C853).withOpacity(0.1),
+              color: const Color(0xFF00C853).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(

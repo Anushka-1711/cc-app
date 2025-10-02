@@ -2,6 +2,7 @@
 import 'package:flutter/services.dart';
 import 'signup_screen.dart';
 import '../main_app_screen.dart';
+import '../../services/services.dart';
 
 /// Exact replica of the cc-web GitHub repository login screen
 class LoginScreen extends StatefulWidget {
@@ -25,15 +26,47 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    if (_emailController.text.trim().isEmpty || _passwordController.text.isEmpty) {
+      _showErrorSnackBar('Please fill in all fields');
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    // Simulate login delay
-    await Future.delayed(const Duration(milliseconds: 1000));
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainAppScreen()),
+    try {
+      await ServiceProvider.auth.signInWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainAppScreen()),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Login failed: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleAnonymousLogin() async {
+    setState(() => _isLoading = true);
+    HapticFeedback.lightImpact();
+
+    try {
+      await ServiceProvider.auth.signInAnonymously();
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainAppScreen()),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Anonymous login failed: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -41,12 +74,31 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     HapticFeedback.lightImpact();
 
-    // Simulate social login
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      // For now, treat social login as anonymous login
+      // You can implement specific social providers later
+      await ServiceProvider.auth.signInAnonymously();
 
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainAppScreen()),
+        );
+      }
+    } catch (e) {
+      _showErrorSnackBar('Social login failed: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainAppScreen()),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -213,16 +265,16 @@ class _LoginScreenState extends State<LoginScreen> {
         // Facebook Login - exact from repo
         _buildSocialButton(
           onPressed: () => _handleSocialLogin('facebook'),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.facebook,
                 color: Color(0xFF1877F2),
                 size: 20,
               ),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: 12),
+              Text(
                 'Continue with Facebook',
                 style: TextStyle(
                   fontSize: 16,
@@ -238,16 +290,16 @@ class _LoginScreenState extends State<LoginScreen> {
         // Apple Login - exact from repo
         _buildSocialButton(
           onPressed: () => _handleSocialLogin('apple'),
-          child: Row(
+          child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.apple,
                 color: Color(0xFF262626),
                 size: 20,
               ),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: 12),
+              Text(
                 'Continue with Apple',
                 style: TextStyle(
                   fontSize: 16,

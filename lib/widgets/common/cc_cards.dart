@@ -226,7 +226,7 @@ class CCLoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CCCard(
+    return const CCCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -237,18 +237,18 @@ class CCLoadingCard extends StatelessWidget {
                 height: 20,
                 borderRadius: CCDesignSystem.borderRadiusLarge,
               ),
-              const Spacer(),
-              const _CCShimmer(width: 60, height: 12),
+              Spacer(),
+              _CCShimmer(width: 60, height: 12),
             ],
           ),
-          const SizedBox(height: CCDesignSystem.space12),
-          const _CCShimmer(width: double.infinity, height: 16),
-          const SizedBox(height: CCDesignSystem.space4),
-          const _CCShimmer(width: double.infinity, height: 16),
-          const SizedBox(height: CCDesignSystem.space4),
-          const _CCShimmer(width: 200, height: 16),
-          const SizedBox(height: CCDesignSystem.space12),
-          const Row(
+          SizedBox(height: CCDesignSystem.space12),
+          _CCShimmer(width: double.infinity, height: 16),
+          SizedBox(height: CCDesignSystem.space4),
+          _CCShimmer(width: double.infinity, height: 16),
+          SizedBox(height: CCDesignSystem.space4),
+          _CCShimmer(width: 200, height: 16),
+          SizedBox(height: CCDesignSystem.space12),
+          Row(
             children: [
               _CCShimmer(width: 60, height: 20),
               SizedBox(width: CCDesignSystem.space20),
@@ -309,7 +309,7 @@ class _CCShimmerState extends State<_CCShimmer>
           decoration: BoxDecoration(
             borderRadius: widget.borderRadius ?? CCDesignSystem.borderRadiusSmall,
             gradient: LinearGradient(
-              colors: [
+              colors: const [
                 CCDesignSystem.backgroundCard,
                 CCDesignSystem.divider,
                 CCDesignSystem.backgroundCard,

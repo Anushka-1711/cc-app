@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../services/services.dart';
 
 /// Home feed screen - exact replica of cc-web GitHub repository
 class HomeFeedScreen extends StatefulWidget {
@@ -11,8 +12,14 @@ class HomeFeedScreen extends StatefulWidget {
 
 class _HomeFeedScreenState extends State<HomeFeedScreen> {
   final ScrollController _scrollController = ScrollController();
-  final List<ConfessionPost> _posts = _generateMockPosts();
-  bool _isLoading = false;
+  List<Map<String, dynamic>> _posts = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPosts();
+  }
 
   @override
   void dispose() {
@@ -20,102 +27,85 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     super.dispose();
   }
 
-  static List<ConfessionPost> _generateMockPosts() {
-    return [
-      ConfessionPost(
-        id: '1',
-        content:
-            'I have a huge crush on someone in my CS class but I\'m too shy to talk to them. Every time they walk by, my heart starts racing #crush #college #anonymous',
-        timeAgo: '2h',
-        likes: 23,
-        comments: 8,
-        community: 'Computer Science',
-        universityName: 'MIT',
-        isLiked: false,
-        confessionType: 'Relationship',
-      ),
-      ConfessionPost(
-        id: '2',
-        content:
-            'I pretend to understand everything in lectures but honestly I\'m lost 80% of the time. Anyone else feeling like they\'re drowning in coursework? #academics #struggle #help',
-        timeAgo: '4h',
-        likes: 156,
-        comments: 42,
-        community: 'General',
-        universityName: 'Stanford University',
-        isLiked: true,
-        confessionType: 'Academic',
-      ),
-      ConfessionPost(
-        id: '3',
-        content:
-            'My roommate leaves their dirty dishes everywhere and never cleans up. I\'ve started doing their dishes just to avoid confrontation. Am I being a doormat? #roommate #dormlife',
-        timeAgo: '6h',
-        likes: 89,
-        comments: 28,
-        community: 'Dorm Life',
-        universityName: 'Harvard University',
-        isLiked: false,
-        confessionType: 'Living',
-      ),
-      ConfessionPost(
-        id: '4',
-        content:
-            'I spent my entire weekend binge-watching shows instead of studying for my midterm that\'s tomorrow. Why do I do this to myself every single time? #procrastination #midterm #regret #studentlife',
-        timeAgo: '8h',
-        likes: 234,
-        comments: 67,
-        community: 'Study Tips',
-        universityName: 'UC Berkeley',
-        isLiked: true,
-        confessionType: 'Academic',
-      ),
-      ConfessionPost(
-        id: '5',
-        content:
-            'Sometimes I eat alone in my car instead of the cafeteria because I feel awkward sitting by myself in public. College social life is harder than I expected. #anxiety #social #lonely #mentalhealth',
-        timeAgo: '1d',
-        likes: 312,
-        comments: 91,
-        community: 'Mental Health',
-        universityName: 'UCLA',
-        isLiked: false,
-        confessionType: 'Personal',
-      ),
-    ];
-  }
+  Future<void> _loadPosts() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-  void _toggleLike(String postId) {
-    setState(() {
-      final postIndex = _posts.indexWhere((post) => post.id == postId);
-      if (postIndex != -1) {
-        _posts[postIndex].isLiked = !_posts[postIndex].isLiked;
-        _posts[postIndex].likes += _posts[postIndex].isLiked ? 1 : -1;
+      final posts = await ServiceProvider.confession.getHomeFeedConfessions();
+      
+      setState(() {
+        _posts = posts;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load posts: ${e.toString()}')),
+        );
       }
-    });
-    HapticFeedback.lightImpact();
+    }
   }
 
-  void _onCommentTap(ConfessionPost post) {
+  Future<void> _toggleLike(String postId) async {
+    try {
+      // Optimistically update UI
+      setState(() {
+        final postIndex = _posts.indexWhere((post) => post['id'] == postId);
+        if (postIndex != -1) {
+          final currentVote = _posts[postIndex]['user_vote'] ?? 0;
+          final newVote = currentVote == 1 ? 0 : 1; // Toggle between 0 and 1
+          
+          _posts[postIndex]['user_vote'] = newVote;
+          _posts[postIndex]['upvotes'] = (_posts[postIndex]['upvotes'] ?? 0) + (newVote - currentVote);
+        }
+      });
+
+      // Make actual API call
+      final currentVote = await ServiceProvider.confession.getUserVote(postId);
+      if (currentVote == 1) {
+        await ServiceProvider.confession.removeVoteFromConfession(postId);
+      } else {
+        await ServiceProvider.confession.voteOnConfession(postId, 1);
+      }
+      
+      HapticFeedback.lightImpact();
+    } catch (e) {
+      // Revert optimistic update on error
+      await _loadPosts();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to vote: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  void _onCommentTap(Map<String, dynamic> post) {
     HapticFeedback.lightImpact();
     // TODO: Navigate to post detail screen
+    final content = post['content'] ?? '';
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-            'Comments for: ${post.content.length > 30 ? post.content.substring(0, 30) + "..." : post.content}'),
+            'Comments for: ${content.length > 30 ? "${content.substring(0, 30)}..." : content}'),
         backgroundColor: const Color(0xFF262626),
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _onShareTap(ConfessionPost post) {
+  void _onShareTap(Map<String, dynamic> post) {
     HapticFeedback.lightImpact();
     // TODO: Implement share functionality
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Share functionality coming soon'),
-        backgroundColor: const Color(0xFF262626),
+        backgroundColor: Color(0xFF262626),
         duration: Duration(seconds: 2),
       ),
     );
@@ -273,7 +263,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     );
   }
 
-  Widget _buildPostCard(ConfessionPost post) {
+  Widget _buildPostCard(Map<String, dynamic> post) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: const BoxDecoration(
@@ -302,7 +292,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     );
   }
 
-  Widget _buildPostHeader(ConfessionPost post) {
+  Widget _buildPostHeader(Map<String, dynamic> post) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -337,7 +327,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                   ),
                 ),
                 Text(
-                  '${post.community} • ${post.timeAgo}',
+                  '${post['community'] ?? 'General'} • ${_formatTimeAgo(post['created_at'])}',
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF8E8E8E),
@@ -366,10 +356,10 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     );
   }
 
-  Widget _buildPostContent(ConfessionPost post) {
+  Widget _buildPostContent(Map<String, dynamic> post) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: _buildHashtagText(post.content),
+      child: _buildHashtagText(post['content'] ?? ''),
     );
   }
 
@@ -423,7 +413,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     );
   }
 
-  Widget _buildPostChips(ConfessionPost post) {
+  Widget _buildPostChips(Map<String, dynamic> post) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -432,13 +422,13 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF0095F6).withOpacity(0.1),
+              color: const Color(0xFF0095F6).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border:
-                  Border.all(color: const Color(0xFF0095F6).withOpacity(0.3)),
+                  Border.all(color: const Color(0xFF0095F6).withValues(alpha: 0.3)),
             ),
             child: Text(
-              post.community,
+              post['community'] ?? 'General',
               style: const TextStyle(
                 fontSize: 12,
                 color: Color(0xFF0095F6),
@@ -452,10 +442,10 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF8E44AD).withOpacity(0.1),
+              color: const Color(0xFF8E44AD).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border:
-                  Border.all(color: const Color(0xFF8E44AD).withOpacity(0.3)),
+                  Border.all(color: const Color(0xFF8E44AD).withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -467,7 +457,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  post.universityName,
+                  post['university_name'] ?? 'Unknown University',
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF8E44AD),
@@ -484,13 +474,13 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFFE91E63).withOpacity(0.1),
+              color: const Color(0xFFE91E63).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border:
-                  Border.all(color: const Color(0xFFE91E63).withOpacity(0.3)),
+                  Border.all(color: const Color(0xFFE91E63).withValues(alpha: 0.3)),
             ),
             child: Text(
-              post.confessionType,
+              post['confession_type'] ?? 'General',
               style: const TextStyle(
                 fontSize: 12,
                 color: Color(0xFFE91E63),
@@ -503,32 +493,35 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     );
   }
 
-  Widget _buildPostActions(ConfessionPost post) {
+  Widget _buildPostActions(Map<String, dynamic> post) {
+    final isLiked = (post['user_vote'] ?? 0) == 1;
+    final likesCount = post['upvotes'] ?? 0;
+    final commentsCount = post['comment_count'] ?? 0;
+    
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           // Like button
           InkWell(
-            onTap: () => _toggleLike(post.id),
+            onTap: () => _toggleLike(post['id']),
             borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Row(
                 children: [
                   Icon(
-                    post.isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: post.isLiked ? Colors.red : const Color(0xFF8E8E8E),
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? Colors.red : const Color(0xFF8E8E8E),
                     size: 20,
                   ),
-                  if (post.likes > 0) ...[
+                  if (likesCount > 0) ...[
                     const SizedBox(width: 4),
                     Text(
-                      post.likes.toString(),
+                      likesCount.toString(),
                       style: TextStyle(
                         fontSize: 12,
-                        color:
-                            post.isLiked ? Colors.red : const Color(0xFF8E8E8E),
+                        color: isLiked ? Colors.red : const Color(0xFF8E8E8E),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -551,10 +544,10 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                     color: Color(0xFF8E8E8E),
                     size: 20,
                   ),
-                  if (post.comments > 0) ...[
+                  if (commentsCount > 0) ...[
                     const SizedBox(width: 4),
                     Text(
-                      post.comments.toString(),
+                      commentsCount.toString(),
                       style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF8E8E8E),
@@ -587,10 +580,33 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
     );
   }
 
+  String _formatTimeAgo(String? createdAt) {
+    if (createdAt == null) return 'Unknown time';
+    
+    try {
+      final dateTime = DateTime.parse(createdAt);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+
+      if (difference.inDays > 7) {
+        return '${(difference.inDays / 7).floor()}w';
+      } else if (difference.inDays > 0) {
+        return '${difference.inDays}d';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours}h';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes}m';
+      } else {
+        return 'now';
+      }
+    } catch (e) {
+      return 'Unknown time';
+    }
+  }
+
   Future<void> _handleRefresh() async {
     HapticFeedback.lightImpact();
-    await Future.delayed(const Duration(milliseconds: 800));
-    // TODO: Refresh posts from API
+    await _loadPosts();
   }
 }
 

@@ -74,9 +74,14 @@ class ConfessionService {
   }) {
     return _supabase
         .from('confessions')
-        .stream(primaryKey: ['id'])
-        .eq('community_id', communityId)
-        .eq('status', 'active');
+        .stream(primaryKey: ['id']).map((data) {
+          return data
+              .where((item) => 
+                  item['community_id'] == communityId && 
+                  item['status'] == 'active')
+              .toList()
+              .cast<Map<String, dynamic>>();
+        });
   }
   
   /// Get all confessions for home feed (public and user's communities)

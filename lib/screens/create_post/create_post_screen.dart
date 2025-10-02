@@ -2,6 +2,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import '../../core/utils/platform_utils.dart';
+import '../../services/services.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String? preSelectedCommunityId;
@@ -20,6 +21,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   bool _isAnonymous = true;
   String? _selectedCommunity;
   final int _maxLength = 500;
+  bool _isSubmitting = false;
 
   final List<String> _communities = [
     'General Confessions',
@@ -70,17 +72,27 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
         actions: [
           TextButton(
-            onPressed:
-                _textController.text.trim().isNotEmpty ? _sharePost : null,
-            child: Text(
-              'Share',
-              style: TextStyle(
-                color: _textController.text.trim().isNotEmpty
-                    ? const Color(0xFF0095F6)
-                    : const Color(0xFF8E8E8E),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            onPressed: _textController.text.trim().isNotEmpty && !_isSubmitting 
+                ? _sharePost 
+                : null,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0095F6)),
+                    ),
+                  )
+                : Text(
+                    'Share',
+                    style: TextStyle(
+                      color: _textController.text.trim().isNotEmpty && !_isSubmitting
+                          ? const Color(0xFF0095F6)
+                          : const Color(0xFF8E8E8E),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
           ),
         ],
       ),
@@ -335,12 +347,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFFF0F8FF),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF0095F6).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF0095F6).withValues(alpha: 0.3)),
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(Icons.info_outline, color: Color(0xFF0095F6), size: 20),
               SizedBox(width: 8),
@@ -354,8 +366,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             ' Be respectful and supportive\n No hate speech or discrimination\n No personal information sharing\n Keep it college-related',
             style: TextStyle(
               fontSize: 12,
@@ -405,28 +417,76 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  void _sharePost() {
+  Future<void> _sharePost() async {
     if (_textController.text.trim().isEmpty) return;
 
-    HapticFeedback.lightImpact();
+    setState(() {
+      _isSubmitting = true;
+    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _isAnonymous
-              ? 'Anonymous confession shared successfully!'
-              : 'Public post shared successfully!',
-        ),
-        backgroundColor: const Color(0xFF0095F6),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-    );
+    try {
+      HapticFeedback.lightImpact();
 
-    _textController.clear();
-    Navigator.of(context).pop();
+      // For now, use a default community ID (we can improve this later by fetching from backend)
+      const defaultCommunityId = 'default-community-id';
+      
+      // Extract hashtags from the content
+      final content = _textController.text.trim();
+      final hashtagRegex = RegExp(r'#\w+');
+      final hashtags = hashtagRegex.allMatches(content)
+          .map((match) => match.group(0)!.substring(1)) // Remove the # symbol
+          .toList();
+
+      // Submit to backend
+      await ServiceProvider.confession.postConfession(
+        content: content,
+        communityId: defaultCommunityId,
+        tags: hashtags.isNotEmpty ? hashtags : null,
+        isAnonymous: _isAnonymous,
+        postType: _isAnonymous ? 'confession' : 'post',
+        visibility: 'public',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _isAnonymous
+                  ? 'Anonymous confession shared successfully!'
+                  : 'Public post shared successfully!',
+            ),
+            backgroundColor: const Color(0xFF0095F6),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+
+        _textController.clear();
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to share post: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 }

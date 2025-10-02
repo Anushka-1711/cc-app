@@ -363,7 +363,7 @@ class AuthService {
         .maybeSingle();
     
     if (institution == null) {
-      throw AuthException(
+      throw const AuthException(
         'Email domain not recognized. Please use your institutional email or sign in anonymously.',
       );
     }
